@@ -45,7 +45,7 @@ class Chromosome {
     }
 
     /*static void annealing() {
-        double temperature = 1e30, minTemp = 1e-30, step = 0.001;
+        double temperature = 1, minTemp = 1e-30, step = 0.001;
         Chromosome state = new Chromosome();
         state.init();
         print(state);
@@ -54,22 +54,24 @@ class Chromosome {
         System.out.println();
         int i = 0, numIter = 1000000;
         Chromosome candidate = new Chromosome();
+        candidate.init();
         int candidateEnergy;
         while (temperature > minTemp && i < numIter) {
-            //candidate.copy(candidate.mutate(state));
+            candidate.mutate();
             //print(candidate);
             candidateEnergy = candidate.calculateScore();
             if (candidateEnergy > stateEnergy) {
-                state = candidate;
+                state.copy(candidate);
                 stateEnergy = candidateEnergy;
             } else if (checkProbability(candidateEnergy - stateEnergy, temperature)) {
-                state = candidate;
+                state.copy(candidate);
                 stateEnergy = candidateEnergy;
             }
-            //temperature /= Math.pow(i, (1 / 1000.0)); //сверхбыстрый отжиг
-            temperature = temperature * (1 - step);
+            temperature /= Math.pow(i, (1 / 10.0)); //сверхбыстрый отжиг
+            //temperature = temperature * (1 - step);
             if (i % 10000 == 0) {
                 print(state);
+                System.out.println(stateEnergy);
             }
             if (temperature < minTemp) {
                 break;
@@ -79,7 +81,7 @@ class Chromosome {
         System.out.print(state.calculateScore());
 
     }
-*/
+    */
     static void print(Chromosome state) {
         for (ArrayList row : state.matrix) {
             int i = 1;
@@ -93,10 +95,10 @@ class Chromosome {
             System.out.println();
         }
         System.out.println();
-        for(int[][] route:state.shifts){
-            for(int[] time:route){
-                for(int day:time){
-                    System.out.print(day+" ");
+        for (int[][] route : state.shifts) {
+            for (int[] time : route) {
+                for (int day : time) {
+                    System.out.print(day + " ");
                 }
                 System.out.println();
             }
@@ -120,9 +122,9 @@ class Chromosome {
             }
             in.close();
             list.remove(0);
-            for (int i = 0; i < list.size(); i++) {
+            for (String aList : list) {
                 ArrayList worker = new ArrayList();
-                StringTokenizer st = new StringTokenizer(list.get(i), "|", false);
+                StringTokenizer st = new StringTokenizer(aList, "|", false);
                 int k = 0;
                 ArrayList line = new ArrayList();
                 while (st.hasMoreTokens()) {
@@ -148,7 +150,7 @@ class Chromosome {
         return matrix;
     }
 
-    static ArrayList crossing(Chromosome a, Chromosome b) {
+    static ArrayList<Chromosome> crossing(Chromosome a, Chromosome b) {
         Chromosome childA = new Chromosome();
         childA.copy(a);
         Chromosome childB = new Chromosome();
@@ -159,14 +161,14 @@ class Chromosome {
             pointA = RandomUtils.nextInt(1, 15);
             pointB = RandomUtils.nextInt(1, 15);
         }
-        for (ArrayList worker : a.matrix) {
-            ArrayList chB = childB.matrix.get(a.matrix.indexOf(worker));
+        for (ArrayList<Character> worker : a.matrix) {
+            ArrayList<Character> chB = childB.matrix.get(a.matrix.indexOf(worker));
             for (int i = pointA; i < pointB; i++) {
                 chB.set(i, worker.get(i));
             }
         }
-        for (ArrayList worker : b.matrix) {
-            ArrayList chA = childA.matrix.get(b.matrix.indexOf(worker));
+        for (ArrayList<Character> worker : b.matrix) {
+            ArrayList<Character> chA = childA.matrix.get(b.matrix.indexOf(worker));
             for (int i = pointA; i < pointB; i++) {
                 chA.set(i, worker.get(i));
             }
@@ -180,7 +182,7 @@ class Chromosome {
                 }
             }
         }
-        ArrayList arrayList = new ArrayList();
+        ArrayList<Chromosome> arrayList = new ArrayList<>();
         arrayList.add(childA);
         arrayList.add(childB);
         return arrayList;
@@ -203,7 +205,7 @@ class Chromosome {
                 }
             }
         }
-        for (ArrayList worker : copy.matrix) {
+        for (ArrayList<Character> worker : copy.matrix) {
             ArrayList t = new ArrayList();
             for (Object aWorker : worker) t.add(aWorker);
             this.matrix.add(t);
@@ -221,7 +223,7 @@ class Chromosome {
         score += D_SCORE * countDayPrefer();
         score += N_SCORE * countNightPrefer();
         score += R_SCORE * countRestPrefer();
-        for (ArrayList worker : matrix) {
+        for (ArrayList<Character> worker : matrix) {
             //проверка на 3 ночных смены подряд
             score += MORE_NNN_SCORE * countNNN(worker);
             //проверка на день после ночи
@@ -250,13 +252,15 @@ class Chromosome {
         return count;
     }
 
-    private int countLongRest(ArrayList row) {
+    private int countLongRest(ArrayList<Character> row) {
         int count = 0, countDay = 0;
         int r = matrix.indexOf(row);
-        ArrayList org = origin.get(r);
+        String a, b;
+        ArrayList<Character> org = origin.get(r);
         for (int i = 1; i < row.size(); i++) {
-
-            if (org.get(i).equals(row.get(i))) {
+            a = String.valueOf(org.get(i));
+            b = String.valueOf(row.get(i));
+            if (a.equals(b)) {
                 countDay++;
             } else {
                 if (countDay >= 3) count++;
@@ -282,11 +286,13 @@ class Chromosome {
 
     private int countShiftsInWeekend() {
         int count = 0;
-
-        for (ArrayList worker : origin) {
+        String a, b;
+        for (ArrayList<Character> worker : origin) {
             for (int j = 1; j < worker.size(); j++) {
-                ArrayList ma = matrix.get(origin.indexOf(worker));
-                if (Objects.equals(String.valueOf(worker.get(j)), "XX") && !ma.get(j).equals(worker.get(j))) {
+                ArrayList<Character> ma = matrix.get(origin.indexOf(worker));
+                a = String.valueOf(ma.get(j));
+                b = String.valueOf(worker.get(j));
+                if (Objects.equals(String.valueOf(worker.get(j)), "XX") && !a.equals(b)) {
                     count++;
                 }
             }
@@ -296,10 +302,12 @@ class Chromosome {
 
     private int countDayPrefer() {
         int count = 0;
-        for (ArrayList worker : origin) {
+        String a;
+        for (ArrayList<Character> worker : origin) {
             for (int j = 1; j < worker.size(); j++) {
-                ArrayList ma = matrix.get(origin.indexOf(worker));
-                if (Objects.equals(String.valueOf(worker.get(j)), "DD") && ma.get(j).toString().charAt(1) == 'd')
+                ArrayList<Character> ma = matrix.get(origin.indexOf(worker));
+                a = String.valueOf(ma.get(j));
+                if (Objects.equals(String.valueOf(worker.get(j)), "DD") && a.charAt(1) == 'd')
                     count++;
             }
         }
@@ -308,10 +316,12 @@ class Chromosome {
 
     private int countNightPrefer() {
         int count = 0;
-        for (ArrayList worker : origin) {
+        String a;
+        for (ArrayList<Character> worker : origin) {
             for (int j = 1; j < worker.size(); j++) {
-                ArrayList ma = matrix.get(origin.indexOf(worker));
-                if (Objects.equals(String.valueOf(worker.get(j)), "NN") && ma.get(j).toString().charAt(1) == 'n')
+                ArrayList<Character> ma = matrix.get(origin.indexOf(worker));
+                a = String.valueOf(ma.get(j));
+                if (Objects.equals(String.valueOf(worker.get(j)), "NN") && a.charAt(1) == 'n')
                     count++;
             }
         }
@@ -320,26 +330,31 @@ class Chromosome {
 
     private int countRestPrefer() {
         int count = 0;
+        String a;
         for (ArrayList worker : origin) {
             for (int j = 1; j < worker.size(); j++) {
                 ArrayList ma = matrix.get(origin.indexOf(worker));
-                if (Objects.equals(String.valueOf(worker.get(j)), "RR") && ma.get(j).equals("RR"))
+                a = String.valueOf(ma.get(j));
+                if (Objects.equals(String.valueOf(worker.get(j)), "RR") && a.equals("RR"))
                     count++;
             }
         }
         return count;
     }
 
-    private int countDayAfterN(ArrayList row) {
+    private int countDayAfterN(ArrayList<Character> row) {
         int count = 0;
+        String a, b;
         for (int i = 2; i < row.size(); i++) {
-            if (row.get(i - 1).toString().charAt(1) == 'n' && row.get(i).toString().charAt(1) == 'd')
+            a = String.valueOf(row.get(i));
+            b = String.valueOf(row.get(i - 1));
+            if (b.charAt(1) == 'n' && a.charAt(1) == 'd')
                 count++;
         }
         return count;
     }
 
-    private int countNumOfNights(ArrayList row) {
+    private int countNumOfNights(ArrayList<Character> row) {
         int countNight = 0;
         for (Object aRow : row) {
             if (aRow == "1n" || aRow == "2n" || aRow == "3n")
@@ -357,66 +372,18 @@ class Chromosome {
     }
 
     void mutate() {
-        //int count = 0, num, r, l, temp = 2;
-        //Chromosome mutant = new Chromosome();
-        //mutant.copy(this);
-
         Chromosome cr = new Chromosome();
         cr.init();
-        int n = RandomUtils.nextInt(1,15);
-        for (ArrayList worker : cr.matrix) {
-            ArrayList chB = this.matrix.get(cr.matrix.indexOf(worker));
+        int n = RandomUtils.nextInt(1, 15);
+        for (ArrayList<Character> worker : cr.matrix) {
+            ArrayList<Character> chB = this.matrix.get(cr.matrix.indexOf(worker));
             chB.set(n, worker.get(n));
         }
         for (int i = 0; i < cr.shifts.length; i++) {
             for (int k = 0; k < cr.shifts[i].length; k++) {
-                    this.shifts[i][k][n-1] = cr.shifts[i][k][n-1];
+                this.shifts[i][k][n - 1] = cr.shifts[i][k][n - 1];
             }
         }
-
-        /*while (count < num) {
-            count++;
-            r = RandomUtils.nextInt(11);
-            ArrayList row = mutant.matrix.get(r);
-            ArrayList org = origin.get(r);
-
-            do {
-                l = RandomUtils.nextInt(1,row.size());
-            } while (row.get(l).equals(org.get(l)));
-          int flag = 0;
-            do {
-                temp = RandomUtils.nextInt(1,row.size());
-                if (row.get(l).toString().charAt(1) == 'n') flag = 1;
-
-            }
-            while (mutant.shifts[Integer.parseInt(String.valueOf(row.get(l).toString().charAt(0))) - 1][flag][temp - 1] == 0 || l == temp);
-            //row.set(temp, row.get(l));
-            if (checkProc()) {
-                //row.set(l, org.get(l));
-            }
-        }
-        */
-
-        /*for (ArrayList row : mutant.matrix) {
-            if (RandomUtils.nextBoolean()) {
-                ArrayList org = origin.get(mutant.matrix.indexOf(row));
-                do {
-                    l = RandomUtils.nextInt(1, row.size());
-                } while (row.get(l).equals(org.get(l)));
-                int flag = 0;
-                do {
-                    temp = RandomUtils.nextInt(1, row.size());
-                    if (row.get(l).toString().charAt(1) == 'n') flag = 1;
-                    num=Integer.parseInt(String.valueOf(row.get(l).toString().charAt(0))) - 1;
-                }
-                while (mutant.shifts[num][flag][temp - 1] == 0 || l == temp);
-                row.set(temp, row.get(l));
-                if (checkProc()) {
-                    row.set(l, org.get(l));
-                }
-            }
-        }*/
-        //this.copy(mutant);
     }
 
     private boolean checkProc() {
@@ -449,16 +416,16 @@ class Chromosome {
             ArrayList t = (ArrayList) worker.get(0);
             if (t.size() == 1) {
                 count = 0;
-                num = RandomUtils.nextInt(4, 9);
+                num = RandomUtils.nextInt(9);
                 while (count < num) {
                     r = RandomUtils.nextInt(1, 15);
-                    if (worker.get(r) != "1n" && worker.get(r) != "1d" && worker.get(r) != "2n" && worker.get(r) != "2d" && worker.get(r) != "3n" && worker.get(r) != "3d") {
+                    if (!worker.get(r).equals("1n") && !worker.get(r).equals("1d") && !worker.get(r).equals("2n") && !worker.get(r).equals("2d") && !worker.get(r).equals("3n") && !worker.get(r).equals("3d")) {
                         y = values[RandomUtils.nextInt(2)];
-                        if (y == "n" /*&& checkNumOfNights(worker)*/ && shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][1][r - 1] > 0) {
+                        if (Objects.equals(y, "n") && checkNumOfNights(worker) && shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][1][r - 1] > 0) {
                             worker.set(r, t.get(0) + y);
                             shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][1][r - 1] = 0;
                             count++;
-                        } else if (y == "d" && shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][0][r - 1] > 0) {
+                        } else if (Objects.equals(y, "d") && shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][0][r - 1] > 0) {
                             worker.set(r, t.get(0) + y);
                             shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][0][r - 1] = 0;
                             count++;
@@ -469,7 +436,7 @@ class Chromosome {
         }
     }
 
-    private boolean checkNumOfNights(ArrayList row) {
+    private boolean checkNumOfNights(ArrayList<Character> row) {
         int countNight = 0;
         for (Object aRow : row) {
             if (aRow == "1n" || aRow == "2n" || aRow == "3n")
@@ -481,36 +448,38 @@ class Chromosome {
     private void fillTwo() {
         int count, r, num;
         String[] values = new String[]{"n", "d"};
-        String y = "";
+        String y, a;
         //Collections.copy(matrix,origin);
         for (ArrayList worker : matrix) {
             ArrayList t = (ArrayList) worker.get(0);
             if (t.size() > 1) {
                 count = 0;
-                num = RandomUtils.nextInt(4, 9);
+                num = RandomUtils.nextInt(9);
                 while (count < num) {
                     r = RandomUtils.nextInt(1, 15);
-                    if (worker.get(r) != "1n" && worker.get(r) != "1d" && worker.get(r) != "2n" && worker.get(r) != "2d" && worker.get(r) != "3n" && worker.get(r) != "3d")
+                    a = String.valueOf(worker.get(r));
+                    if (!a.equals("1n") && !a.equals("1d") && !worker.get(r).equals("2n") && !worker.get(r).equals("2d") && !worker.get(r).equals("3n") && !worker.get(r).equals("3d")) {
                         y = values[RandomUtils.nextInt(2)];
-                    if (y == "n" /*&& checkNumOfNights(worker)*/) {
-                        if (shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][1][r - 1] > 0) {
-                            worker.set(r, t.get(0) + y);
-                            shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][1][r - 1] = 0;
-                            count++;
-                        } else if (shifts[Integer.parseInt(String.valueOf(t.get(1))) - 1][1][r - 1] > 0) {
-                            worker.set(r, t.get(1) + y);
-                            shifts[Integer.parseInt(String.valueOf(t.get(1))) - 1][1][r - 1] = 0;
-                            count++;
-                        }
-                    } else if (y == "d") {
-                        if (shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][0][r - 1] > 0) {
-                            worker.set(r, t.get(0) + y);
-                            shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][0][r - 1] = 0;
-                            count++;
-                        } else if (shifts[Integer.parseInt(String.valueOf(t.get(1))) - 1][0][r - 1] > 0) {
-                            worker.set(r, t.get(1) + y);
-                            shifts[Integer.parseInt(String.valueOf(t.get(1))) - 1][0][r - 1] = 0;
-                            count++;
+                        if (Objects.equals(y, "n") /*&& checkNumOfNights(worker)*/) {
+                            if (shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][1][r - 1] > 0) {
+                                worker.set(r, t.get(0) + y);
+                                shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][1][r - 1] = 0;
+                                count++;
+                            } else if (shifts[Integer.parseInt(String.valueOf(t.get(1))) - 1][1][r - 1] > 0) {
+                                worker.set(r, t.get(1) + y);
+                                shifts[Integer.parseInt(String.valueOf(t.get(1))) - 1][1][r - 1] = 0;
+                                count++;
+                            }
+                        } else if (Objects.equals(y, "d")) {
+                            if (shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][0][r - 1] > 0) {
+                                worker.set(r, t.get(0) + y);
+                                shifts[Integer.parseInt(String.valueOf(t.get(0))) - 1][0][r - 1] = 0;
+                                count++;
+                            } else if (shifts[Integer.parseInt(String.valueOf(t.get(1))) - 1][0][r - 1] > 0) {
+                                worker.set(r, t.get(1) + y);
+                                shifts[Integer.parseInt(String.valueOf(t.get(1))) - 1][0][r - 1] = 0;
+                                count++;
+                            }
                         }
                     }
                 }

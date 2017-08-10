@@ -31,6 +31,8 @@ public class Population {
         bestSolution.copy(members.get(getBestMemberIndex()));
         for (int epoch = 0; epoch < this.numberOfIterations; epoch++) {
             //размножение
+            System.out.println(epoch);
+            System.out.println("-------------------------------------------------");
             calculateScore();
             crossing();
             //мутация
@@ -38,21 +40,24 @@ public class Population {
             //отбор
             calculateScore();
             selection();
-            if (bestScore>0){
-                int n=1-8;
-                n++;
-            }
             calculateScore();
             if (bestScore < members.get(getBestMemberIndex()).getScore()) {
-                bestSolution = members.get(getBestMemberIndex());
+                bestSolution.copy(members.get(0));
                 bestScore = bestSolution.getScore();
             }
-            if (epoch % 10 == 0) {
+            /*for(Chromosome member: members){
+                print(member);
+                System.out.println(member.getScore());
+                System.out.println();
+            }
+
+*/
+            if (epoch % 100 == 0) {
                 print(bestSolution);
                 System.out.println(bestScore);
             }
-
         }
+        bestSolution.calculateScore();
         print(bestSolution);
         System.out.println(bestScore);
     }
@@ -89,23 +94,14 @@ public class Population {
     }
 
     private void choose() {
-        double parentA = 0, parentB = 0;
+        double parentA, parentB;
         for (int i = 0; i < numberOfMembers / 2; i++) {
             parentA = RandomUtils.nextDouble() * 0.01;
             parentB = RandomUtils.nextDouble() * 0.1;
             Chromosome a = members.get(binarySearch(parentA));
             Chromosome b = members.get(binarySearch(parentB));
-            cross(a, b);
+            members.addAll(Chromosome.crossing(a, b));
         }
-    }
-
-    private void cross(Chromosome a, Chromosome b) {
-        Chromosome childA = new Chromosome(), childB = new Chromosome();
-        ArrayList arrayList = new ArrayList();
-        arrayList = Chromosome.crossing(a, b);
-        childA = (Chromosome) arrayList.get(0);
-        childB = (Chromosome) arrayList.get(1);
-        members.addAll(arrayList);
     }
 
     private int binarySearch(double proc) {
@@ -134,7 +130,7 @@ public class Population {
         int minValue = members.get(numberOfMembers - 1).getScore();
         int average = (-minValue) + 1;
         double summScore = 0;
-        double proc = 0;
+        double proc;
         for (Chromosome member : members) {
             summScore += member.getScore() + average;
         }
@@ -181,7 +177,6 @@ public class Population {
                 Chromosome temp = this.members.get(i);
                 this.members.set(i, this.members.get(j));
                 this.members.set(j, temp);
-                ;
                 if (i == cur)
                     cur = j;
                 else if (j == cur)
