@@ -41,7 +41,7 @@ public class Population {
             calculateScore();
             selection();
             calculateScore();
-            if (bestScore < members.get(getBestMemberIndex()).getScore()) {
+            if (bestScore < members.get(0).getScore()) {
                 bestSolution.copy(members.get(0));
                 bestScore = bestSolution.getScore();
             }
@@ -49,9 +49,9 @@ public class Population {
                 print(member);
                 System.out.println(member.getScore());
                 System.out.println();
-            }
+            }*/
 
-*/
+
             if (epoch % 100 == 0) {
                 print(bestSolution);
                 System.out.println(bestScore);

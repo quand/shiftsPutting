@@ -161,30 +161,31 @@ class Chromosome {
             pointA = RandomUtils.nextInt(1, 15);
             pointB = RandomUtils.nextInt(1, 15);
         }
+
+        /*for (ArrayList<Character> worker : a.matrix) {
+            ArrayList<Character> chB = childB.matrix.get(a.matrix.indexOf(worker));
+            for (int i = pointA; i < pointB; i++)
+                chB.set(i, worker.get(i));
+        }*/
+
         for (ArrayList<Character> worker : a.matrix) {
             ArrayList<Character> chB = childB.matrix.get(a.matrix.indexOf(worker));
             for (int i = pointA; i < pointB; i++) {
-                chB.set(i, worker.get(i));
-            }
-        }
-        for (ArrayList<Character> worker : b.matrix) {
-            ArrayList<Character> chA = childA.matrix.get(b.matrix.indexOf(worker));
-            for (int i = pointA; i < pointB; i++) {
-                chA.set(i, worker.get(i));
+                worker.set(i, chB.get(i));
             }
         }
 
         for (int i = 0; i < a.shifts.length; i++) {
             for (int k = 0; k < a.shifts[i].length; k++) {
                 for (int j = pointA; j < pointB; j++) {
-                    childA.shifts[i][k][j] = a.shifts[i][k][j];
-                    childB.shifts[i][k][j] = b.shifts[i][k][j];
+                    childA.shifts[i][k][j] = b.shifts[i][k][j];
+                    //childB.shifts[i][k][j] = a.shifts[i][k][j];
                 }
             }
         }
         ArrayList<Chromosome> arrayList = new ArrayList<>();
         arrayList.add(childA);
-        arrayList.add(childB);
+        //arrayList.add(childB);
         return arrayList;
     }
 
