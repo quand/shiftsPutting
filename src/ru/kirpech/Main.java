@@ -5,10 +5,10 @@ public class Main {
 
     public static void main(String[] args) {
         // write your code here
-        Population population = new Population(200, "/Users/user/IdeaProjects/shiftsPutting/src/ru/kirpech/input.txt");
+        Population population = new Population(300, "/Users/user/IdeaProjects/shiftsPutting/src/ru/kirpech/input.txt");
 
         population.createPopulation();
-        population.setNumberOfIterations(200);
+        population.setNumberOfIterations(1000);
         population.startGA();
 
     }

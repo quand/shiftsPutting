@@ -34,23 +34,21 @@ public class Population {
             System.out.println(epoch);
             System.out.println("-------------------------------------------------");
             calculateScore();
+            if (bestScore < members.get(0).getScore()) {
+                bestSolution.copy(members.get(0));
+                bestScore = bestSolution.getScore();
+            }
             crossing();
             //мутация
             mutation();
             //отбор
             calculateScore();
             selection();
-            calculateScore();
-            if (bestScore < members.get(0).getScore()) {
-                bestSolution.copy(members.get(0));
-                bestScore = bestSolution.getScore();
-            }
-            /*for(Chromosome member: members){
+            /*for (Chromosome member : members) {
                 print(member);
                 System.out.println(member.getScore());
                 System.out.println();
             }*/
-
 
             if (epoch % 100 == 0) {
                 print(bestSolution);
@@ -96,8 +94,8 @@ public class Population {
     private void choose() {
         double parentA, parentB;
         for (int i = 0; i < numberOfMembers / 2; i++) {
-            parentA = RandomUtils.nextDouble() * 0.01;
-            parentB = RandomUtils.nextDouble() * 0.1;
+            parentA = RandomUtils.nextDouble();
+            parentB = RandomUtils.nextDouble();
             Chromosome a = members.get(binarySearch(parentA));
             Chromosome b = members.get(binarySearch(parentB));
             members.addAll(Chromosome.crossing(a, b));
@@ -114,8 +112,9 @@ public class Population {
                     i = mid;
                     break;
                 } else {
-                    if (proc > members.get(mid).getProc()) {
-                        high = mid;
+                    if (proc > members.get(mid).getProc()&&mid>0) {
+                        if(proc<members.get(mid-1).getProc()) {i=mid; break;}
+                        else high = mid;
                     } else {
                         low = mid + 1;
                     }
@@ -127,15 +126,13 @@ public class Population {
     }
 
     private void countProc() {
-        int minValue = members.get(numberOfMembers - 1).getScore();
-        int average = (-minValue) + 1;
-        double summScore = 0;
+        double a, b;
+        a = RandomUtils.nextDouble(1, 2);
+        b = 2 - a;
+
         double proc;
         for (Chromosome member : members) {
-            summScore += member.getScore() + average;
-        }
-        for (Chromosome member : members) {
-            proc = (member.getScore() + average) / summScore;
+            proc = (a - (a - b) * ((members.indexOf(member)) / (numberOfMembers - 1))) / numberOfMembers;
             member.setProc(proc);
         }
 
