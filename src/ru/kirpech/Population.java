@@ -25,6 +25,10 @@ public class Population {
         this.numberOfIterations = iterations;
     }
 
+    static void print(Chromosome print) {
+        Chromosome.print(print);
+    }
+
     public void startGA() {
         int bestScore = Integer.MIN_VALUE;
         Chromosome bestSolution = new Chromosome();
@@ -50,7 +54,7 @@ public class Population {
                 System.out.println();
             }*/
 
-            if (epoch % 100 == 0) {
+            if (epoch % 500 == 0) {
                 print(bestSolution);
                 System.out.println(bestScore);
             }
@@ -58,10 +62,6 @@ public class Population {
         bestSolution.calculateScore();
         print(bestSolution);
         System.out.println(bestScore);
-    }
-
-    private void print(Chromosome print) {
-        Chromosome.print(print);
     }
 
     private int getBestMemberIndex() {
@@ -182,5 +182,12 @@ public class Population {
         }
         doSort(start, cur);
         doSort(cur + 1, end);
+    }
+
+    public Chromosome getBestChromosome(){
+        return members.get(0);
+    }
+    public void addChromosome(Chromosome cr){
+        members.add(cr);
     }
 }

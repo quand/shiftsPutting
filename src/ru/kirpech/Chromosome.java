@@ -26,62 +26,11 @@ class Chromosome {
         score = 0;
     }
 
-    static void selection() {
-
-    }
-
-    /*
-        нужен метод для скрещивания в котором
-        проходит биекция значений на числовую прямую от 1
-        находится вероятность того что попадет в данную секцию(выиграет данное решение)
-        сортируем популяцию по значению вероятности
-        генерируем 2 значения от 0 до 1
-        бинарным поиском находим родителей для скрещивания
-        скрестили, получии два новых и добавили их в популяцию
-        */
     static void setOrigin(String fin) {
         Chromosome.fin = fin;
         Chromosome.origin = read();
     }
 
-    /*static void annealing() {
-        double temperature = 1, minTemp = 1e-30, step = 0.001;
-        Chromosome state = new Chromosome();
-        state.init();
-        print(state);
-        int stateEnergy = state.calculateScore();
-        System.out.print(state.calculateScore());
-        System.out.println();
-        int i = 0, numIter = 1000000;
-        Chromosome candidate = new Chromosome();
-        candidate.init();
-        int candidateEnergy;
-        while (temperature > minTemp && i < numIter) {
-            candidate.mutate();
-            //print(candidate);
-            candidateEnergy = candidate.calculateScore();
-            if (candidateEnergy > stateEnergy) {
-                state.copy(candidate);
-                stateEnergy = candidateEnergy;
-            } else if (checkProbability(candidateEnergy - stateEnergy, temperature)) {
-                state.copy(candidate);
-                stateEnergy = candidateEnergy;
-            }
-            temperature /= Math.pow(i, (1 / 10.0)); //сверхбыстрый отжиг
-            //temperature = temperature * (1 - step);
-            if (i % 10000 == 0) {
-                print(state);
-                System.out.println(stateEnergy);
-            }
-            if (temperature < minTemp) {
-                break;
-            }
-            i++;
-        }
-        System.out.print(state.calculateScore());
-
-    }
-    */
     static void print(Chromosome state) {
         for (ArrayList row : state.matrix) {
             int i = 1;
@@ -104,12 +53,6 @@ class Chromosome {
             }
             System.out.println();
         }
-    }
-
-    private static boolean checkProbability(int deltaE, double temperature) {
-        double p = Math.exp(-deltaE / temperature);
-        double val = RandomUtils.nextDouble();
-        return val <= p;
     }
 
     private static ArrayList<ArrayList<Character>> read() {
@@ -419,7 +362,7 @@ class Chromosome {
             ArrayList t = (ArrayList) worker.get(0);
             if (t.size() == 1) {
                 count = 0;
-                num = RandomUtils.nextInt(9);
+                num = RandomUtils.nextInt(3,8);
                 while (count < num) {
                     r = RandomUtils.nextInt(1, 15);
                     if (!worker.get(r).equals("1n") && !worker.get(r).equals("1d") && !worker.get(r).equals("2n") && !worker.get(r).equals("2d") && !worker.get(r).equals("3n") && !worker.get(r).equals("3d")) {
@@ -457,7 +400,7 @@ class Chromosome {
             ArrayList t = (ArrayList) worker.get(0);
             if (t.size() > 1) {
                 count = 0;
-                num = RandomUtils.nextInt(9);
+                num = RandomUtils.nextInt(3,8);
                 while (count < num) {
                     r = RandomUtils.nextInt(1, 15);
                     a = String.valueOf(worker.get(r));

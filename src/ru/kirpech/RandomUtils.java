@@ -13,10 +13,6 @@ public class RandomUtils {
         return RAND.nextInt(bound);
     }
 
-    public static boolean nextBoolean() {
-        return RAND.nextBoolean();
-    }
-
     public static double nextDouble(int min, int max) {
         max -= min;
         return (RAND.nextDouble() * max)+min;
